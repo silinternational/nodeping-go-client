@@ -56,3 +56,16 @@ type CheckResponse struct {
 	State     int    `json:"state"`
 	Firstdown int64  `json:"firstdown"`
 }
+
+type UptimeResponse struct {
+	Enabled int64   `json:"enabled"`
+	Down    int64   `json:"down"`
+	Uptime  float32 `json:"uptime"`
+}
+
+type ContactGroupResponse struct {
+	Type       string        `json:"type"`
+	CustomerID string        `json:"customer_id"`
+	Name       string        `json:"name"`
+	Members    []interface{} `json:"members"`
+}

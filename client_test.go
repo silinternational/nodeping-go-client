@@ -68,3 +68,82 @@ func TestGetCheck(t *testing.T) {
 		t.Errorf("Did not get back expected check, got: %+v", check)
 	}
 }
+
+func TestListContactGroups(t *testing.T) {
+	client, err := nodeping.New(nodeping.ClientConfig{Token: os.Getenv("NODEPING_TOKEN")})
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	cgs, err := client.ListContactGroups()
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Logf("CGs: %+v", cgs)
+
+	if client.Error.Error != "" {
+		t.Error(client.Error)
+	}
+}
+
+func TestGetResultUptime(t *testing.T) {
+	client, err := nodeping.New(nodeping.ClientConfig{Token: os.Getenv("NODEPING_TOKEN")})
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	checks, err := client.ListChecks()
+	if err != nil {
+		t.Error(err)
+	}
+	if client.Error.Error != "" {
+		t.Error(client.Error)
+	}
+
+	uptimes, err := client.GetUptime(checks[0].ID, 0, 0)
+	if err != nil {
+		t.Error(err)
+	}
+	if client.Error.Error != "" {
+		t.Error(client.Error)
+	}
+
+	if len(uptimes) < 1 {
+		t.Error("Did not get back any uptime data.")
+	}
+
+}
+
+func TestGetResultUptimeWithParams(t *testing.T) {
+	client, err := nodeping.New(nodeping.ClientConfig{Token: os.Getenv("NODEPING_TOKEN")})
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	checks, err := client.ListChecks()
+	if err != nil {
+		t.Error(err)
+	}
+	if client.Error.Error != "" {
+		t.Error(client.Error)
+	}
+
+	start := int64(1291161600000)  // Dec 1, 2010
+	end := int64(1922313600000)  // Dec 1, 2030
+	uptimes, err := client.GetUptime(checks[0].ID, start, end)
+	if err != nil {
+		t.Error(err)
+	}
+	if client.Error.Error != "" {
+		t.Error(client.Error)
+	}
+
+	if len(uptimes) < 1 {
+		t.Error("Did not get back any uptime data.")
+	}
+
+}
