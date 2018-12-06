@@ -83,22 +83,24 @@ func (c *NodePingClient) GetCheck(id string) (CheckResponse, error) {
 
 // GetUptime retrieves the uptime entries for a certain check within an optional date range (by Timestamp with microseconds)
 func (c *NodePingClient) GetUptime(id string, start, end int64) (map[string]UptimeResponse, error) {
-	path := fmt.Sprintf("/results/uptime/%s", id)
+	// Build path with potentially a "?" and "&" symbols
+	// I'm not getting c.R's built in query param functions to work properly
+	pathDelimiter := ""
 	queryParams := ""
 	queryParamDelimiter := ""
 
 	if start > 0 {
 		queryParams = fmt.Sprintf("start=%d", start)
 		queryParamDelimiter = "&"
+		pathDelimiter = "?"
 	}
 
 	if end > 0 {
 		queryParams = fmt.Sprintf("%s%send=%d", queryParams, queryParamDelimiter, end)
+		pathDelimiter = "?"
 	}
 
-	if len(queryParams) > 0 {
-		c.R.SetQueryString(queryParams)
-	}
+	path := fmt.Sprintf("/results/uptime/%s%s%s", id, pathDelimiter, queryParams)
 
 	var listObj map[string]UptimeResponse
 	_, err := c.R.SetResult(&listObj).Get(path)
