@@ -8,21 +8,53 @@ import (
 	"strings"
 )
 
-var mockCheck = `
-{
-  "_id":"2018090614528ABCD-MNOPQRST","customer_id":"2018090614528ABCD","label":"Example1","interval":5,
-  "notifications":[
-    {"AAAA5":
-      {"schedule":"All","delay":5}}         
-  ], 
-  "runlocations":false,"type":"HTTP","status":"assigned","modified":1543260813141,"enable":"active","public":false,"dep":false,
-  "parameters":
-    {"target":"https://example1.org/","ipv6":false,"follow":false,"threshold":30,"sens":2},
-  "created":1539715596937,"queue":"aaaaaaaa10","uuid":"aaaaaaa8-aaa4-aaa4-aaa4-aaaaaaaaaa11","firstdown":0,"state":1
-}
-`
 
-var mockCheckList = `
+func TestNew(t *testing.T) {
+	// Confirm error when Token is not provided
+	_, err := nodeping.New(nodeping.ClientConfig{})
+	if err == nil {
+		t.Error("Error not thrown when Token was not provided")
+	}
+
+	// Test defaults with empty config
+	client, err := nodeping.New(nodeping.ClientConfig{Token: "abc123"})
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	assert.Equal(t, nodeping.BaseURL, client.Config.BaseURL)
+	assert.Equal(t, "abc123", client.Config.Token)
+	assert.Equal(t, "", client.MockResults)
+}
+
+func TestListChecks(t *testing.T) {
+	client, err := nodeping.New(nodeping.ClientConfig{Token: os.Getenv("NODEPING_TOKEN")})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	_, err = client.ListChecks()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if client.Error.Error != "" {
+		t.Error(client.Error)
+	}
+}
+
+
+func TestListChecksMock(t *testing.T) {
+	client, err := nodeping.New(nodeping.ClientConfig{Token: os.Getenv("NODEPING_TOKEN")})
+
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	client.MockResults = `
 {
   "2018090614528ABCD-MNOPQRST":
   {"_id":"2018090614528ABCD-MNOPQRST","customer_id":"2018090614528ABCD","label":"Example1","interval":5,
@@ -72,71 +104,6 @@ var mockCheckList = `
   }
 }
 `
-
-var mockContactGroupList = `
-{
- "2018090614528ABCD-A-AAAA5":
-    {"type":"group","customer_id":"2018090614528ABCD","name":"CGList1","members":["AAAA5","BBBB5","CCCC5","DDDD5","EEEE5"]},
- "2018090614528Abcd-B-BBBB5":
-    {"type":"group","customer_id":"2018090614528ABCD","name":"CGList2","members":["FFFF5"]}
-}
-`
-
-var mockUptime = `
-{
-  "2018-10":{"enabled":1315092551,"down":82790,"uptime":99.010},
-  "2018-11":{"enabled":2592000000,"down":89391,"uptime":99.011},
-  "2018-12":{"enabled":837810368,"down":80892,"uptime":99.012},
-  "total":{"enabled":4744902919,"down":253073,"uptime":99.011}
-}
-`
-
-func TestNew(t *testing.T) {
-	// Confirm error when Token is not provided
-	_, err := nodeping.New(nodeping.ClientConfig{})
-	if err == nil {
-		t.Error("Error not thrown when Token was not provided")
-	}
-
-	// Test defaults with empty config
-	client, err := nodeping.New(nodeping.ClientConfig{Token: "abc123"})
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
-
-	assert.Equal(t, nodeping.BaseURL, client.Config.BaseURL)
-	assert.Equal(t, "abc123", client.Config.Token)
-	assert.Equal(t, "", client.MockResults)
-}
-
-func TestListChecks(t *testing.T) {
-	client, err := nodeping.New(nodeping.ClientConfig{Token: os.Getenv("NODEPING_TOKEN")})
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	_, err = client.ListChecks()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	if client.Error.Error != "" {
-		t.Error(client.Error)
-	}
-}
-
-
-func TestListChecksMock(t *testing.T) {
-	client, err := nodeping.New(nodeping.ClientConfig{Token: os.Getenv("NODEPING_TOKEN")})
-
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	client.MockResults = mockCheckList
 
 	checks, err := client.ListChecks()
 	if err != nil {
@@ -203,7 +170,20 @@ func TestGetCheckMock(t *testing.T) {
 		t.FailNow()
 	}
 
-	client.MockResults = mockCheck
+	client.MockResults = `
+{
+  "_id":"2018090614528ABCD-MNOPQRST","customer_id":"2018090614528ABCD","label":"Example1","interval":5,
+  "notifications":[
+    {"AAAA5":
+      {"schedule":"All","delay":5}}         
+  ], 
+  "runlocations":false,"type":"HTTP","status":"assigned","modified":1543260813141,"enable":"active","public":false,"dep":false,
+  "parameters":
+    {"target":"https://example1.org/","ipv6":false,"follow":false,"threshold":30,"sens":2},
+  "created":1539715596937,"queue":"aaaaaaaa10","uuid":"aaaaaaa8-aaa4-aaa4-aaa4-aaaaaaaaaa11","firstdown":0,"state":1
+}
+`
+
     id := "2018090614528ABCD-MNOPQRST"
 	check, err := client.GetCheck(id)
 	if err != nil {
@@ -249,7 +229,14 @@ func TestListContactGroupsMock(t *testing.T) {
 		return
 	}
 
-	client.MockResults = mockContactGroupList
+	client.MockResults = `
+{
+ "2018090614528ABCD-A-AAAA5":
+    {"type":"group","customer_id":"2018090614528ABCD","name":"CGList1","members":["AAAA5","BBBB5","CCCC5","DDDD5","EEEE5"]},
+ "2018090614528Abcd-B-BBBB5":
+    {"type":"group","customer_id":"2018090614528ABCD","name":"CGList2","members":["FFFF5"]}
+}
+`
 
 	cgs, err := client.ListContactGroups()
 	if err != nil {
@@ -351,7 +338,14 @@ func TestGetResultUptimeMock(t *testing.T) {
 		return
 	}
 
-	client.MockResults = mockUptime
+	client.MockResults = `
+{
+  "2018-10":{"enabled":1315092551,"down":82790,"uptime":99.010},
+  "2018-11":{"enabled":2592000000,"down":89391,"uptime":99.011},
+  "2018-12":{"enabled":837810368,"down":80892,"uptime":99.012},
+  "total":{"enabled":4744902919,"down":253073,"uptime":99.011}
+}
+`
 
 	uptimes, err := client.GetUptime("2018090614528ABCD", 0, 0)
 	if err != nil {
