@@ -5,11 +5,9 @@ type NodePingError struct {
 	Error string `json:"error"`
 }
 
-type CheckNotification struct {
-	Contactkey1 struct {
-		Delay    int    `json:"delay"`
-		Schedule string `json:"schedule"`
-	} `json:"contactkey1"`
+type CheckNotification map[string]struct {
+	Delay    int    `json:"delay"`
+	Schedule string `json:"schedule"`
 }
 
 type CheckRequest struct {
@@ -35,17 +33,17 @@ type CheckRequest struct {
 }
 
 type CheckResponse struct {
-	ID            string        `json:"_id"`
-	Rev           string        `json:"_rev"`
-	CustomerID    string        `json:"customer_id"`
-	Label         string        `json:"label"`
-	Interval      int           `json:"interval"`
-	Notifications []interface{} `json:"notifications"`
-	Type          string        `json:"type"`
-	Status        string        `json:"status"`
-	Modified      int64         `json:"modified"`
-	Enable        string        `json:"enable"`
-	Public        bool          `json:"public"`
+	ID            string        	  `json:"_id"`
+	Rev           string              `json:"_rev"`
+	CustomerID    string              `json:"customer_id"`
+	Label         string              `json:"label"`
+	Interval      int                 `json:"interval"`
+	Notifications []CheckNotification `json:"notifications"`
+	Type          string        	  `json:"type"`
+	Status        string        	  `json:"status"`
+	Modified      int64         	  `json:"modified"`
+	Enable        string        	  `json:"enable"`
+	Public        bool          	  `json:"public"`
 	Parameters    struct {
 		Target    string `json:"target"`
 		Threshold int    `json:"threshold"`
@@ -56,4 +54,17 @@ type CheckResponse struct {
 	UUID      string `json:"uuid"`
 	State     int    `json:"state"`
 	Firstdown int64  `json:"firstdown"`
+}
+
+type UptimeResponse struct {
+	Enabled int64   `json:"enabled"`
+	Down    int64   `json:"down"`
+	Uptime  float32 `json:"uptime"`
+}
+
+type ContactGroupResponse struct {
+	Type       string        `json:"type"`
+	CustomerID string        `json:"customer_id"`
+	Name       string        `json:"name"`
+	Members    []interface{} `json:"members"`
 }
