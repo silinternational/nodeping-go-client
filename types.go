@@ -1,5 +1,6 @@
 package nodeping
 
+//
 type NodePingError struct {
 	Error string `json:"error"`
 }
