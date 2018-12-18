@@ -8,7 +8,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	// Confirm error when Token is not provided
+	// Confirm error when Token is not provided.
 	_, err := nodeping.New(nodeping.ClientConfig{})
 	if err == nil {
 		t.Error("Error not thrown when Token was not provided")

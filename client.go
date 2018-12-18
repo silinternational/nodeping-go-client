@@ -8,7 +8,7 @@ import (
 const BaseURL = "https://api.nodeping.com/api/1"
 const Version = "0.0.1"
 
-// ClientConfig type includes configuration options for NodePing client
+// ClientConfig type includes configuration options for NodePing client.
 type ClientConfig struct {
 	BaseURL    string
 	Token      string
