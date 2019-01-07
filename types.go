@@ -50,7 +50,7 @@ type CheckResponse struct {
 		Sens      int    `json:"sens"`
 	} `json:"parameters"`
 	Created   int64  `json:"created"`
-	Queue     string `json:"queue"`
+	Queue     interface{} `json:"queue"`  // This is normally a string but can be a bool sometimes
 	UUID      string `json:"uuid"`
 	State     int    `json:"state"`
 	Firstdown int64  `json:"firstdown"`
